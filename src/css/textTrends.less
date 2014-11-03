@@ -1,0 +1,126 @@
+@import "elements.less";
+@import "bootstrap.css";
+
+
+@highlight_color: silver;
+
+body {
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+  font-weight: 300;
+}
+
+.header {
+  height: 90px;
+  width: 100%;
+
+  .name_div {
+    position: absolute;
+    top: 10px;
+    left: 0;
+    margin-top: -10px;
+    white-space: nowrap;
+    font-size: 60px;
+    overflow: hidden;
+  }
+  .contact_info {
+    position: absolute;
+    top: 10px;
+    left: 0px;
+    padding-left: 25px;
+    font-size: 22px;
+    text-align: justify;
+    &:after{
+      content: '';
+      display: inline-block;
+      width: 100%;
+      height: 0;
+      font-size:0;
+      line-height:0;
+    }
+  }
+}
+
+.main_content {
+  text-align: center;
+  .section.input {
+    text-align: justify;
+    display: inline-block;
+    input {
+      display: inline-block;
+    }
+    .text_input {
+      width: 100%;
+      height: 300px;
+    }
+    .form-control {
+      text-align: left !important;
+      width: 90% !important;
+      display: inline-block !important;
+    }
+    .colorpicker,.sp-replacer {
+      vertical-align: bottom;
+      height: 32px;
+    }
+    .number_input {
+      width: 110px;
+    }
+    .button_input {
+      width: 100px;
+      height: 20px;
+    }
+    .specifier_container {
+      width: 100%;
+      .text_input {
+        width: 100%;
+        height: 20px;
+      }
+    }
+  }
+
+  .section.results {
+    #fork {
+      position: absolute;
+      top: 0;
+      right: 0;
+      border: 0;
+    }
+
+    .legend {
+      width: 10em;
+      border: 1px solid black;
+    }
+
+    .legend .title {
+      display: block;
+      margin: 0.5em;
+      border-style: solid;
+      border-width: 0 0 0 1em;
+      padding: 0 0.3em;
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
