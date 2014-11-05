@@ -15,7 +15,12 @@ function init() {
 }
 
 function analyzeButtonPress() {
-  chartData(getDatasetFromDOM(analyzeChunks(window.summedWordList)));
+  var toAnalyze = [];
+  var fileNames = $('.ui-sortable').sortable('toArray', {attribute: 'id'});
+  _.each(fileNames, function(name) {
+    toAnalyze = toAnalyze.concat(window.namedChunks[name]);
+  });
+  chartData(getDatasetFromDOM(analyzeChunks(toAnalyze)), fileNames);
 }
 
 function removeAllFiles() {
@@ -124,13 +129,14 @@ function analyzeChunks(chunks) {
   return dicts;
 }
 
+//super brittle function, grabs user input directly, I broke most of it by changing HTML ordering
 function getDatasetFromDOM(dicts) {
   var container = $('.specifier_container');
   var dataset = {};
   var colorset = {};
   _.each(container.children(), function(child, indx) {
-    var myColor = $(child.childNodes[1]).spectrum("get");
-    var text = $(child.childNodes[0].childNodes[0]).tokenfield("getTokensList");
+    var myColor = $(child.childNodes[0]).spectrum("get");
+    var text = $(child.childNodes[2].childNodes[0]).tokenfield("getTokensList");
     text = text.toLowerCase();
     text = text.replace(/\s/g, ' ');
     text = text.replace(/[^a-z ]/g, ' ');
@@ -158,7 +164,7 @@ function getChartEntryForWordList(dicts, wordList) {
   return out;
 }
 
-function chartData(dataContainer) {
+function chartData(dataContainer, fileNames) {
   var dataArr = dataContainer[0];
   var colorArr = dataContainer[1];
   var keys = Object.keys(dataArr);
@@ -168,13 +174,17 @@ function chartData(dataContainer) {
   var countUp = 0;
   for (var i = 1; i <= window.numFiles; i++) {
     for (var j = 1; j <= window.lastNumChunks; j++) {
-      labels.push(i + '.' + j);
+      if (fileNames) {
+        labels.push(fileNames[i-1].replace(/[^a-zA-Z ]/g, ' ').substring(0,10) + '.' + j);
+      } else {
+        labels.push(i + '.' + j);
+      }
     }
   }
   _.each(dataArr, function(val, key) {
     var mySet = {
       fillColor: colorArr[key],
-      strokeColor: colorArr[key],
+      strokeColor: '#000',
       pointColor: colorArr[key],
       pointStrokeColor: '#fff',
       label: key,
@@ -197,7 +207,7 @@ function chartData(dataContainer) {
 
 function resetCanvas() {
   $('#chart').remove();
-  $('.section.results').prepend($('<canvas id="chart"><canvas>'));
+  $('.section.results').append($('<canvas id="chart"><canvas>'));
   canvas = $('#chart')[0];
   ctx = canvas.getContext('2d');
   ctx.canvas.width = $(window).width(); // resize to parent width
@@ -238,7 +248,7 @@ function updateFileDisplay() {
   fileList.sortable();
   fileList.disableSelection();
   _.each(window.fileNameList, function(fileName) {
-    var myRow = $('<li class="fileName">' + fileName + '</li>');
+    var myRow = $('<li class="fileName" id="' + fileName + '">' + fileName + '</li>');
     fileList.append(myRow);
   });
 }
@@ -247,8 +257,9 @@ function addSpecifier(dontUpdateTypeahead) {
   var container = $('.specifier_container');
   var myNum = container[0].children.length+1;
   var myRow = $('<div class="specifier_row"/>');
-  myRow.append($('<input type="text" placeholder="Enter list to display as dataset ' + myNum + '. Title will be first word."/>').addClass('specifier text_input'));
   myRow.append($('<input type="text" class="colorpicker ' + myNum + '" />'));
+  myRow.append($('<input type="text" placeholder="Enter list to display as dataset ' + myNum + '. Title will be first word."/>').addClass('specifier text_input'));
+
 
   container.append(myRow);
   $('.colorpicker.' + myNum).spectrum({
