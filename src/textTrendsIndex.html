@@ -10,6 +10,7 @@
   <link rel="stylesheet/less" type="text/css" href="css/textTrends.less" />
 	<script src="lib/less.js" type="text/javascript"></script>
   <script src="lib/jquery.js"></script>
+  <script src="lib/jquery-ui.js"></script>
   <script src="lib/bootstrap.js"></script>
   <script src="lib/bootstrap-tokenfield.js"></script>
   <script src="lib/spectrum.js"></script>
@@ -26,34 +27,41 @@
 <body id="index" onload="">
 
 
-<!--   <div class="header">
+  <div class="header">
     <div class="contact_info">
-      <div class="number">314 630 9258</div>
-      <a href="mailto:lordchair@gmail.com?Subject=Resume Response" target="_top">
+      <div class="number"><a href="http://yale-thomas.com">yale-thomas.com</a></div>
+      <a href="mailto:lordchair+site_texttrends@gmail.com?Subject=TextTrends Response" target="_top">
         lordchair@gmail.com
       </a>
     </div>
     <div class="name_div">
-      TxtTrnd
+      Text Trends Analyzer
     </div>
   </div>
- -->
+
+  <a href="https://github.com/lordchair/textTrends"><img style="position: absolute; top: 0; right: 0; border: 0;" src="images/gitBanner.png" alt="Fork me on GitHub"></a>
+
+  <div class="section results" style="display:none;">
+    <canvas id="chart" width="800" height="600">
+    </canvas>
+    <div id="legend"></div>
+  </div>
+
   <div class="main_content">
+      <div class="section files">
+        <div class="file_button_holder">
+          <input type="file" id="file_input" multiple="multiple"/>
+        </div>
+        <ul class="files_container">
+        </ul>
+      </div>
     <div class="section input">
-      <input type="file" id="file_input" multiple="multiple"/>
       <input type="number" class="number_input" id="chunk_number_input" defaultValue="10" max="1000" min="1" placeholder="Chunks/File"/>
       <button type="button" id="add_specifier_button" class="add specifier_button">Add Analysis Group</button>
       <button type="button" id="remove_specifier_button" class="remove specifier_button">Remove Last Analysis Group</button>
       <button type="button" id="file_input_button">Analyze Text</button>
       <div class="specifier_container">
       </div>
-      <!-- <div class="text_input"> Enter ' ' or ',' separated list to display them together as a line on the graph. Title will be first word."</div> -->
-    </div>
-
-    <div class="section results">
-      <canvas id="chart" width="800" height="600">
-      </canvas>
-      <div id="legend"></div>
     </div>
 
   </div>

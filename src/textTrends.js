@@ -7,30 +7,37 @@ function init() {
   $('#add_specifier_button').on('click', addSpecifier);
   $('#remove_specifier_button').on('click', removeSpecifier);
   $('#file_input').on('change', loadFiles);
-  window.autocompleteTags = [];
-  window.autocompleteNeedsUpdate = true;
+  removeAllFiles();
+  addSpecifier('dontUpdateTypeahead');
   $('.specifier_container').hide();
-  addSpecifier();
   window.reader = new FileReader();
-  window.reader.onloadend = function(e) {fileLoaded(e, "");};
+  window.reader.onloadend = function(e) {fileLoaded(e);};
 }
 
 function analyzeButtonPress() {
   chartData(getDatasetFromDOM(analyzeChunks(window.summedWordList)));
 }
 
+function removeAllFiles() {
+  window.autocompleteTags = [];
+  window.autocompleteNeedsUpdate = true;
+  window.summedWordList = [];
+  window.fileNameList = [];
+  window.namedChunks = {};
+}
+
 function loadFiles(e) {
   if (!e.target || !e.target.files.length)
     return;
-  window.summedWordList = [];
+  var filesToLoad = e.target.files;
   window.filesLeft = [];
   window.autocompleteNeedsUpdate = true;
   window.numFiles = 0;
-  _.each(e.target.files, function(file) {
+  _.each(filesToLoad, function(file) {
     window.numFiles++;
     window.filesLeft.push(file);
   });
-  window.reader.readAsText(window.filesLeft.shift());
+  fileLoadingHelper(window.filesLeft.shift());
 }
 
 function fileLoaded(e) {
@@ -56,15 +63,34 @@ function fileLoaded(e) {
     myChunks[i] = textArr.slice(i*chunkSize, (i+1)*chunkSize);
   }
 
-  // add myChunks to the global chunk list
+  // add myChunks to the global chunk lists
+  window.namedChunks[window.lastFileLoaded.name] = myChunks;
+  window.fileNameList.push(window.lastFileLoaded.name);
   window.summedWordList = window.summedWordList.concat(myChunks);
 
   // recursively (through the onLoadEnd binding) process next file
   if (window.filesLeft.length) {
-    window.reader.readAsText(window.filesLeft.shift());
+    fileLoadingHelper(window.filesLeft.shift());
   } else {
     analyzeChunks(window.summedWordList);
+    updateFileDisplay();
     updateTypeahead();
+  }
+}
+
+function fileLoadingHelper(file) {
+  if (!file) {
+    analyzeChunks(window.summedWordList);
+    updateFileDisplay();
+    updateTypeahead();
+    return;
+  }
+  window.lastFileLoaded = file;
+  if (window.namedChunks[file.name]) {
+    window.summedWordList = window.summedWordList.concat(window.namedChunks[file.name]);
+    fileLoadingHelper(window.filesLeft.shift());
+  } else {
+    window.reader.readAsText(file);
   }
 }
 
@@ -163,6 +189,7 @@ function chartData(dataContainer) {
   };
 
   var ctx = resetCanvas();
+  $('.section.results').slideDown();
   window.myChart = new Chart(ctx).Line(data);
   legend($('#legend')[0], data);
 
@@ -173,7 +200,7 @@ function resetCanvas() {
   $('.section.results').prepend($('<canvas id="chart"><canvas>'));
   canvas = $('#chart')[0];
   ctx = canvas.getContext('2d');
-  ctx.canvas.width = $('.section.results').width(); // resize to parent width
+  ctx.canvas.width = $(window).width(); // resize to parent width
   ctx.canvas.height = 600;
   var x = canvas.width/2;
   var y = canvas.height/2;
@@ -206,7 +233,17 @@ function updateTypeahead() {
   window.autocompleteNeedsUpdate = false;
 }
 
-function addSpecifier() {
+function updateFileDisplay() {
+  var fileList = $('.files_container');
+  fileList.sortable();
+  fileList.disableSelection();
+  _.each(window.fileNameList, function(fileName) {
+    var myRow = $('<li class="fileName">' + fileName + '</li>');
+    fileList.append(myRow);
+  });
+}
+
+function addSpecifier(dontUpdateTypeahead) {
   var container = $('.specifier_container');
   var myNum = container[0].children.length+1;
   var myRow = $('<div class="specifier_row"/>');
@@ -218,10 +255,10 @@ function addSpecifier() {
     color: '#'+Math.floor(Math.random()*16777215).toString(16),
     showAlpha: true
   });
-  if (!window.autocompleteNeedsUpdate) {
-    window.autocompleteNeedsUpdate = true;
-    updateTypeahead();
-  }
+  window.autocompleteNeedsUpdate = true;
+  if (dontUpdateTypeahead == "dontUpdateTypeahead")
+    return;
+  updateTypeahead();
 }
 
 function removeSpecifier() {
