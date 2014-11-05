@@ -4,14 +4,21 @@
 function init() {
   var debouncedAnalyzeButton = _.debounce(function(){analyzeButtonPress();}, 1000);
   $('#file_input_button').on('click', debouncedAnalyzeButton);
-  $('#add_specifier_button').on('click', addSpecifier);
-  $('#remove_specifier_button').on('click', removeSpecifier);
+  $('.select_file_button').on('click', chooseFilesButton);
+  $('.activate.button').on('click', debouncedAnalyzeButton);
+  $('.add_specifier').on('click', addSpecifier);
   $('#file_input').on('change', loadFiles);
   removeAllFiles();
   addSpecifier('dontUpdateTypeahead');
-  $('.specifier_container').hide();
+  $('.specifier_container').sortable();
   window.reader = new FileReader();
   window.reader.onloadend = function(e) {fileLoaded(e);};
+}
+
+function chooseFilesButton() {
+  $.get('text/ASOIF/', function(data) {
+    debugger;
+  });
 }
 
 function analyzeButtonPress() {
@@ -78,6 +85,7 @@ function fileLoaded(e) {
     fileLoadingHelper(window.filesLeft.shift());
   } else {
     analyzeChunks(window.summedWordList);
+    window.autocompleteNeedsUpdate = true;
     updateFileDisplay();
     updateTypeahead();
   }
@@ -86,6 +94,7 @@ function fileLoaded(e) {
 function fileLoadingHelper(file) {
   if (!file) {
     analyzeChunks(window.summedWordList);
+    window.autocompleteNeedsUpdate = true;
     updateFileDisplay();
     updateTypeahead();
     return;
@@ -135,8 +144,8 @@ function getDatasetFromDOM(dicts) {
   var dataset = {};
   var colorset = {};
   _.each(container.children(), function(child, indx) {
-    var myColor = $(child.childNodes[0]).spectrum("get");
-    var text = $(child.childNodes[2].childNodes[0]).tokenfield("getTokensList");
+    var myColor = $(child.childNodes[2]).spectrum("get");
+    var text = $(child.childNodes[4].childNodes[0]).tokenfield("getTokensList");
     text = text.toLowerCase();
     text = text.replace(/\s/g, ' ');
     text = text.replace(/[^a-z ]/g, ' ');
@@ -174,8 +183,8 @@ function chartData(dataContainer, fileNames) {
   var countUp = 0;
   for (var i = 1; i <= window.numFiles; i++) {
     for (var j = 1; j <= window.lastNumChunks; j++) {
-      if (fileNames) {
-        labels.push(fileNames[i-1].replace(/[^a-zA-Z ]/g, ' ').substring(0,10) + '.' + j);
+      if (fileNames && fileNames[i-1]) {
+        labels.push(fileNames[i-1].replace(/[^a-zA-Z ]/g, ' ').match(/[a-zA-Z0-9]+.[a-zA-Z0-9]+/) + '.' + j);
       } else {
         labels.push(i + '.' + j);
       }
@@ -238,7 +247,7 @@ function updateTypeahead() {
         typeahead: [null, { source: window.engine.ttAdapter() }]
       });
     });
-    $('.specifier_container').slideDown();
+    $('.subsection.specifiers').slideDown();
   }
   window.autocompleteNeedsUpdate = false;
 }
@@ -256,25 +265,49 @@ function updateFileDisplay() {
 function addSpecifier(dontUpdateTypeahead) {
   var container = $('.specifier_container');
   var myNum = container[0].children.length+1;
-  var myRow = $('<div class="specifier_row"/>');
+  var myRow = $('<li class="specifier_row"/>');
+  myRow.append($('<i class="remove_row_button row_item fa fa-remove"></i>'));
+  myRow.append($('<i class="row_item reorder_row_icon fa fa-bars"></i>'));
   myRow.append($('<input type="text" class="colorpicker ' + myNum + '" />'));
-  myRow.append($('<input type="text" placeholder="Enter list to display as dataset ' + myNum + '. Title will be first word."/>').addClass('specifier text_input'));
+  myRow.append($('<input type="text" placeholder="Make sure to press enter, tab, or comma to make tokens. Title will be first word."/>').addClass('specifier text_input'));
 
+  var myColor = tinycolor.random();
+  myColor.setAlpha(.3);
 
   container.append(myRow);
   $('.colorpicker.' + myNum).spectrum({
-    color: '#'+Math.floor(Math.random()*16777215).toString(16),
+    color: myColor.toRgbString(),
     showAlpha: true
   });
+  $('.remove_row_button').on('click', removeSpecifier);
   window.autocompleteNeedsUpdate = true;
   if (dontUpdateTypeahead == "dontUpdateTypeahead")
     return;
   updateTypeahead();
 }
 
-function removeSpecifier() {
+function removeSpecifier(e) {
+  if (e && e.target && e.target.parentElement && e.target.parentElement.className == 'specifier_row') {
+    e.target.parentElement.remove();
+    return;
+  }
   var container = $('.specifier_container');
   if (container[0].length < 2)
     return;
   $('.specifier_container').children().last().remove();
+}
+
+function getFileFromServer(url, doneCallback) {
+  var xhr;
+
+  xhr = new XMLHttpRequest();
+  xhr.onreadystatechange = handleStateChange;
+  xhr.open("GET", url, true);
+  xhr.send();
+
+  function handleStateChange() {
+    if (xhr.readyState === 4) {
+      doneCallback(xhr.status == 200 ? xhr.responseText : null);
+    }
+  }
 }

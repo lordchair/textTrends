@@ -1,5 +1,6 @@
 @import "elements.less";
 @import "bootstrap.css";
+@import "font-awesome.css";
 
 
 @highlight_color: silver;
@@ -20,12 +21,11 @@ a {
   height: 90px;
   width: 100%;
   margin-bottom: 25px;
-  
+
   a {
     text-decoration: none;
-    color: #0f0069;
     &:hover {
-      color: blue;
+      text-decoration: underline;
     }
   }
   .name_div {
@@ -37,14 +37,14 @@ a {
     font-size: 60px;
     overflow: hidden;
   }
-  .contact_info {
+  .contact_info, .master_panel {
     position: absolute;
     top: 10px;
     left: 0px;
     padding-left: 25px;
     font-size: 22px;
     text-align: justify;
-    &:after{
+    &:after {
       content: '';
       display: inline-block;
       width: 100%;
@@ -52,60 +52,96 @@ a {
       font-size:0;
       line-height:0;
     }
+    .button {
+      &.activate {
+        a {
+          color: green;
+        }
+      }
+      &.reset {
+        a {
+          color: red;
+        }
+      }
+    }
   }
 }
 
 .main_content {
   text-align: left;
   z-index: 1;
+  min-width: 850px;
+  overflow: scroll;
+
+  button,.button {
+    .rounded(10px);
+    border: solid 1px black;
+    background-color: white;
+    cursor: pointer;
+    font-size: 16px;
+    height: 30px;
+    line-height: 25px;
+    vertical-align: middle;
+  }
 
   .section.files {
     float: left;
     margin-left: 25px;
     width: 200px;
-    input {
+
+    .file_button_holder {
+      .rounded(10px);
+      border: solid 1px black;
+      cursor: pointer;
+      font-size: 16px;
+      height: 30px;
+      line-height: 30px;
+      overflow: hidden;
+      position: relative;
+      text-align: center;
       width: 200px;
-      &:after {
-        width: 100%;
-        height: 100%;
-        content: '';
-        background-color: black;
+
+      .file_input {
+        cursor: pointer;
+        height: 30px;
+        left: 0;
+        opacity: 0.01;
+        overflow: hidden;
+        position: absolute;
+        top: 0;
+        width: 200px;
       }
     }
-    ul {
+    .files_container {
       list-style-type: none;
       margin: 0;
       padding: 0;
-    }
-
-    li {
-      font: 200 12px/1.5 Helvetica, Verdana, sans-serif;
-      border-bottom: 1px solid #ccc;
-    }
-
-    li:last-child {
-      border: none;
+      .fileName {
+        font: 200 12px/1.5 Helvetica, Verdana, sans-serif;
+        border-bottom: 1px solid #ccc;
+        cursor: ns-resize;
+      }
+      li:last-child {
+        border: none;
+        margin-bottom: 10px;
+      }
     }
   }
 
   .section.input {
     margin-left: 300px;
-    input {
-      display: inline-block;
-    }
+    min-width: 850px;
+    width: 100%;
     .text_input {
       width: 100%;
       height: 300px;
     }
     .form-control {
       text-align: left !important;
-      width: 90% !important;
+      width: 80% !important;
       display: inline-block !important;
-    }
-    .colorpicker,.sp-replacer {
-      vertical-align: bottom;
-      z-index: 5;
-      height: 32px;
+      vertical-align: middle !important;
+      margin: 5px 0;
     }
     .number_input {
       width: 110px;
@@ -114,15 +150,51 @@ a {
       width: 100px;
       height: 20px;
     }
-    .specifier_container {
-      width: 100%;
-      .text_input {
-        height: 20px;
+    .subsection.specifiers {
+      .add_specifier {
+        display: inline-block;
+        height: 32px;
+        line-height: 32px;
+        font-size: 24px;
+        vertical-align: middle;
+      }
+      .specifier_container {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        .text_input {
+          height: 20px;
+        }
+        .specifier_row {
+          list-style-type: none;
+          .row_item {
+            display: inline-block;
+            height: 32px;
+            line-height: 32px;
+            font-size: 24px;
+            vertical-align: middle;
+            text-align: center;
+            margin-right: 7px;
+            &.remove_row_button {
+              color: red;
+              cursor: pointer;
+            }
+            &.reorder_row_icon {
+              cursor: ns-resize;
+            }
+          }
+          .colorpicker,.sp-replacer {
+            vertical-align: middle;
+            z-index: 5;
+            height: 32px;
+          }
+        }
       }
     }
   }
 
   .section.results {
+    text-align: center;
     #fork {
       position: absolute;
       top: 0;
