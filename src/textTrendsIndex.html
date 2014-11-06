@@ -38,7 +38,7 @@
     </div>
 -->
     <div class="master_panel">
-      <div class="activate button"><a href="#science">Analyze</a></div>
+      <div class="activate button"><a href="#science">Analyze</a></div><br>
       <div class="reset button"><a href="">Reset All</a></div>
     </div>
 
@@ -55,24 +55,35 @@
     </canvas>
   </div>
 
-  <div class="main_content">
-    <div class="section files">
-      <ul class="files_container"></ul>
-      <div class="file_button_holder">
-        Upload Files
-        <input class="file_input" type="file" id="file_input" multiple="multiple"/>
+  <div class="not_results_wrapper">
+    <div class="sidebar_content">
+      <div class="section files">
+        <ul class="files_container"></ul>
+        <div class="file_button_holder">
+          Upload Files
+          <input class="file_input" type="file" id="file_input" multiple="multiple"/>
+        </div>
+        <div class="file_button_holder external_file asoif" id="asoif">
+          ASoIF
+        </div>
+        <div class="file_button_holder external_file lotr" id="lotr">
+          LotR
+        </div>
+        <div class="file_selector"></div>
       </div>
-      <div class="file_button_holder select_file_button">
-        Choose Files
-      </div>
-      <div class="file_selector"></div>
     </div>
-    <div class="section input">
-      <!-- <input type="number" class="number_input" id="chunk_number_input" defaultValue="10" max="1000" min="1" placeholder="Chunks/File"/> -->
-      <div class="subsection specifiers" style="display:none;">
-        <ul class="specifier_container">
-        </ul>
-        <i class="fa fa-plus add_specifier"></i>
+
+    <div class="main_content">
+      <div class="section input">
+        <!-- <input type="number" class="number_input" id="chunk_number_input" defaultValue="10" max="1000" min="1" placeholder="Chunks/File"/> -->
+        <div class="subsection specifiers" style="display:none;">
+          <div class="instructions">
+            Make sure to press enter, tab, or comma to make tokens. Drag files/groups to reorder.
+          </div>
+          <ul class="specifier_container">
+          </ul>
+          <i class="fa fa-plus add_specifier"></i>
+        </div>
       </div>
     </div>
 

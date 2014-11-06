@@ -3,19 +3,21 @@
  */
 function init() {
   var debouncedAnalyzeButton = _.debounce(function(){analyzeButtonPress();}, 1000);
+  var debouncedResize = _.debounce(function(){resizeHelper();}, 100);
+  $(window).on('resize', debouncedResize);
   $('#file_input_button').on('click', debouncedAnalyzeButton);
-  $('.select_file_button').on('click', chooseFilesButton);
+  $('.external_file').on('click', chooseFilesButton);
   $('.activate.button').on('click', debouncedAnalyzeButton);
   $('.add_specifier').on('click', addSpecifier);
   $('#file_input').on('change', loadFiles);
   removeAllFiles();
-  addSpecifier('dontUpdateTypeahead');
   $('.specifier_container').sortable();
   window.reader = new FileReader();
-  window.reader.onloadend = function(e) {fileLoaded(e);};
+  resizeHelper();
 }
 
-function chooseFilesButton() {
+function chooseFilesButton(e) {
+  debugger;
   $.get('text/ASOIF/', function(data) {
     debugger;
   });
@@ -41,6 +43,7 @@ function removeAllFiles() {
 function loadFiles(e) {
   if (!e.target || !e.target.files.length)
     return;
+  removeAllFiles();
   var filesToLoad = e.target.files;
   window.filesLeft = [];
   window.autocompleteNeedsUpdate = true;
@@ -52,9 +55,36 @@ function loadFiles(e) {
   fileLoadingHelper(window.filesLeft.shift());
 }
 
-function fileLoaded(e) {
+function fileLoaded(e, file) {
   // Grab the file contents
-  var text = e.srcElement.result;
+  processText(e.srcElement.result, file.name);
+
+  // recursively (through the onLoadEnd binding) process next file
+  var continues = (window.filesLeft.length) ? window.filesLeft.shift() : false;
+  fileLoadingHelper(continues);
+}
+
+function fileLoadingHelper(file) {
+  if (!file) {
+    analyzeChunks(window.summedWordList);
+    window.autocompleteNeedsUpdate = true;
+    updateFileDisplay();
+    updateTypeahead();
+    return;
+  }
+  if (window.namedChunks[file.name]) {
+    window.summedWordList = window.summedWordList.concat(window.namedChunks[file.name]);
+    fileLoadingHelper(window.filesLeft.shift());
+  } else {
+    window.reader.onloadend = (  function(myFile) {
+       return function(evt) { fileLoaded(evt, myFile); };
+    })(file);
+    window.reader.readAsText(file);
+  }
+}
+
+function processText(textToProcess, name) {
+  var text = textToProcess;
 
   // Clean up the text
   text = text.toLowerCase();
@@ -76,36 +106,9 @@ function fileLoaded(e) {
   }
 
   // add myChunks to the global chunk lists
-  window.namedChunks[window.lastFileLoaded.name] = myChunks;
-  window.fileNameList.push(window.lastFileLoaded.name);
+  window.namedChunks[name] = myChunks;
+  window.fileNameList.push(name);
   window.summedWordList = window.summedWordList.concat(myChunks);
-
-  // recursively (through the onLoadEnd binding) process next file
-  if (window.filesLeft.length) {
-    fileLoadingHelper(window.filesLeft.shift());
-  } else {
-    analyzeChunks(window.summedWordList);
-    window.autocompleteNeedsUpdate = true;
-    updateFileDisplay();
-    updateTypeahead();
-  }
-}
-
-function fileLoadingHelper(file) {
-  if (!file) {
-    analyzeChunks(window.summedWordList);
-    window.autocompleteNeedsUpdate = true;
-    updateFileDisplay();
-    updateTypeahead();
-    return;
-  }
-  window.lastFileLoaded = file;
-  if (window.namedChunks[file.name]) {
-    window.summedWordList = window.summedWordList.concat(window.namedChunks[file.name]);
-    fileLoadingHelper(window.filesLeft.shift());
-  } else {
-    window.reader.readAsText(file);
-  }
 }
 
 function analyzeChunks(chunks) {
@@ -231,6 +234,9 @@ function resetCanvas() {
 
 function updateTypeahead() {
   if (window.autocompleteNeedsUpdate){
+    if (!$('.specifier').length) {
+      addSpecifier('dontUpdateTypeahead');
+    }
 
     window.engine = new Bloodhound({
       local: _.map(_.keys(window.autocompleteTags), function(word) {return {value: word};}),
@@ -254,6 +260,7 @@ function updateTypeahead() {
 
 function updateFileDisplay() {
   var fileList = $('.files_container');
+  fileList.empty();
   fileList.sortable();
   fileList.disableSelection();
   _.each(window.fileNameList, function(fileName) {
@@ -264,22 +271,25 @@ function updateFileDisplay() {
 
 function addSpecifier(dontUpdateTypeahead) {
   var container = $('.specifier_container');
+  var myId = _.uniqueId('spec_');
   var myNum = container[0].children.length+1;
-  var myRow = $('<li class="specifier_row"/>');
+  var myRow = $('<li class="specifier_row" style="display:none;"/>');
   myRow.append($('<i class="remove_row_button row_item fa fa-remove"></i>'));
   myRow.append($('<i class="row_item reorder_row_icon fa fa-bars"></i>'));
-  myRow.append($('<input type="text" class="colorpicker ' + myNum + '" />'));
-  myRow.append($('<input type="text" placeholder="Make sure to press enter, tab, or comma to make tokens. Title will be first word."/>').addClass('specifier text_input'));
+  myRow.append($('<input type="text" class="colorpicker ' + myId + '" />'));
+  myRow.append($('<input type="text"/>').addClass('specifier text_input'));
 
   var myColor = tinycolor.random();
-  myColor.setAlpha(.3);
+  myColor.setAlpha(0.3);
 
   container.append(myRow);
-  $('.colorpicker.' + myNum).spectrum({
+  $('.colorpicker.' + myId).spectrum({
     color: myColor.toRgbString(),
     showAlpha: true
   });
   $('.remove_row_button').on('click', removeSpecifier);
+  _.defer(function() {resizeHelper(); myRow.slideDown(300);});
+
   window.autocompleteNeedsUpdate = true;
   if (dontUpdateTypeahead == "dontUpdateTypeahead")
     return;
@@ -287,14 +297,9 @@ function addSpecifier(dontUpdateTypeahead) {
 }
 
 function removeSpecifier(e) {
-  if (e && e.target && e.target.parentElement && e.target.parentElement.className == 'specifier_row') {
-    e.target.parentElement.remove();
-    return;
-  }
-  var container = $('.specifier_container');
-  if (container[0].length < 2)
-    return;
-  $('.specifier_container').children().last().remove();
+  $(e.target.parentElement).slideUp(function(x) {
+    this.remove();
+  });
 }
 
 function getFileFromServer(url, doneCallback) {
@@ -310,4 +315,11 @@ function getFileFromServer(url, doneCallback) {
       doneCallback(xhr.status == 200 ? xhr.responseText : null);
     }
   }
+}
+
+function resizeHelper() {
+  $('.main_content').width($(window).width() - 260 - 5);
+  _.each($('.form-control.tokenfield'), function(row) {
+    $(row).width($(window).width() - 260 - 150 - 5);
+  });
 }

@@ -4,6 +4,7 @@
 
 
 @highlight_color: silver;
+@light_background: #f0f0f0;
 
 body {
   font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
@@ -24,198 +25,210 @@ a {
 
   a {
     text-decoration: none;
-    &:hover {
-      text-decoration: underline;
-    }
   }
   .name_div {
     position: absolute;
     top: 10px;
-    left: 300px;
+    left: 260px;
     margin-top: -10px;
     white-space: nowrap;
     font-size: 60px;
     overflow: hidden;
   }
   .contact_info, .master_panel {
+    text-align: left;
     position: absolute;
     top: 10px;
     left: 0px;
     padding-left: 25px;
     font-size: 22px;
-    text-align: justify;
-    &:after {
-      content: '';
-      display: inline-block;
-      width: 100%;
-      height: 0;
-      font-size:0;
-      line-height:0;
-    }
     .button {
+      display: inline-block;
       &.activate {
         a {
-          color: green;
+          color: black;
+          &:hover {
+            color: green;
+          }
         }
       }
       &.reset {
         a {
-          color: red;
+          color: black;
+          &:hover {
+            color: red;
+          }
         }
       }
     }
   }
 }
 
-.main_content {
-  text-align: left;
-  z-index: 1;
-  min-width: 850px;
-  overflow: scroll;
+.not_results_wrapper {
+  position: relative;
 
-  button,.button {
-    .rounded(10px);
-    border: solid 1px black;
-    background-color: white;
-    cursor: pointer;
-    font-size: 16px;
-    height: 30px;
-    line-height: 25px;
-    vertical-align: middle;
-  }
-
-  .section.files {
-    float: left;
-    margin-left: 25px;
-    width: 200px;
-
-    .file_button_holder {
-      .rounded(10px);
-      border: solid 1px black;
-      cursor: pointer;
-      font-size: 16px;
-      height: 30px;
-      line-height: 30px;
-      overflow: hidden;
-      position: relative;
-      text-align: center;
+  .sidebar_content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    .section.files {
+      float: left;
+      margin-left: 25px;
       width: 200px;
 
-      .file_input {
+      .file_button_holder {
         cursor: pointer;
+        font-size: 22px;
         height: 30px;
-        left: 0;
-        opacity: 0.01;
+        line-height: 30px;
         overflow: hidden;
-        position: absolute;
-        top: 0;
+        position: relative;
+        text-align: left;
         width: 200px;
-      }
-    }
-    .files_container {
-      list-style-type: none;
-      margin: 0;
-      padding: 0;
-      .fileName {
-        font: 200 12px/1.5 Helvetica, Verdana, sans-serif;
-        border-bottom: 1px solid #ccc;
-        cursor: ns-resize;
-      }
-      li:last-child {
-        border: none;
-        margin-bottom: 10px;
-      }
-    }
-  }
+        color: black;
+        &:hover {
+          color: blue;
+        }
 
-  .section.input {
-    margin-left: 300px;
-    min-width: 850px;
-    width: 100%;
-    .text_input {
-      width: 100%;
-      height: 300px;
-    }
-    .form-control {
-      text-align: left !important;
-      width: 80% !important;
-      display: inline-block !important;
-      vertical-align: middle !important;
-      margin: 5px 0;
-    }
-    .number_input {
-      width: 110px;
-    }
-    .button_input {
-      width: 100px;
-      height: 20px;
-    }
-    .subsection.specifiers {
-      .add_specifier {
-        display: inline-block;
-        height: 32px;
-        line-height: 32px;
-        font-size: 24px;
-        vertical-align: middle;
+        .file_input {
+          cursor: pointer;
+          height: 30px;
+          left: 0;
+          opacity: 0.01;
+          overflow: hidden;
+          position: absolute;
+          top: 0;
+          width: 200px;
+        }
       }
-      .specifier_container {
-        width: 100%;
+      .files_container {
+        list-style-type: none;
         margin: 0;
         padding: 0;
-        .text_input {
-          height: 20px;
+        .fileName {
+          font: 200 12px/1.5 Helvetica, Verdana, sans-serif;
+          border-bottom: 1px solid #ccc;
+          cursor: ns-resize;
         }
-        .specifier_row {
-          list-style-type: none;
-          .row_item {
-            display: inline-block;
-            height: 32px;
-            line-height: 32px;
-            font-size: 24px;
-            vertical-align: middle;
-            text-align: center;
-            margin-right: 7px;
-            &.remove_row_button {
-              color: red;
-              cursor: pointer;
-            }
-            &.reorder_row_icon {
-              cursor: ns-resize;
-            }
-          }
-          .colorpicker,.sp-replacer {
-            vertical-align: middle;
-            z-index: 5;
-            height: 32px;
-          }
+        li:last-child {
+          border: none;
+          margin-bottom: 10px;
         }
       }
     }
   }
 
-  .section.results {
-    text-align: center;
-    #fork {
-      position: absolute;
-      top: 0;
-      right: 0;
-      border: 0;
+  .main_content {
+    position: absolute;
+    top: 0;
+    left: 260px;
+    text-align: left;
+    z-index: 1;
+    min-width: 850px;
+    overflow: scroll;
+
+    .section.input {
+      min-width: 850px;
+      width: 100%;
+      .text_input {
+        width: 100%;
+        height: 300px;
+      }
+      .form-control {
+        text-align: left !important;
+        // width: 89% !important;
+        min-width: 730px;
+        display: inline-block !important;
+        vertical-align: middle !important;
+        margin: 5px 0;
+      }
+      .number_input {
+        width: 110px;
+      }
+      .button_input {
+        width: 100px;
+        height: 20px;
+      }
+      .subsection.specifiers {
+        .instructions {
+          color: @highlight_color;
+          margin-bottom: 5px;
+          font-size: 20px;
+          line-height: 32px;
+          height: 32px;
+        }
+        .add_specifier {
+          display: inline-block;
+          height: 32px;
+          line-height: 32px;
+          font-size: 24px;
+          margin-left: 5px;
+          vertical-align: middle;
+        }
+        .specifier_container {
+          width: 100%;
+          margin: 0;
+          padding: 0;
+          .text_input {
+            height: 20px;
+          }
+          .specifier_row {
+            list-style-type: none;
+            .rounded(5px);
+            background-color: @light_background;
+            margin-bottom: 5px;
+            .row_item,.colorpicker,.sp-replacer {
+              display: inline-block;
+              height: 32px;
+              line-height: 32px;
+              font-size: 24px;
+              vertical-align: middle;
+              text-align: center;
+              margin-right: 7px;
+              &.remove_row_button {
+                color: red;
+                cursor: pointer;
+                margin-left: 5px;
+              }
+              &.reorder_row_icon {
+                cursor: ns-resize;
+              }
+            }
+            .colorpicker,.sp-replacer {
+              z-index: 5;
+              background-color: white;
+              .rounded(5px);
+            }
+          }
+        }
+      }
     }
 
-    .legend {
-      width: 10em;
-      border: 1px solid black;
-    }
+    .section.results {
+      text-align: center;
+      #fork {
+        position: absolute;
+        top: 0;
+        right: 0;
+        border: 0;
+      }
 
-    .legend .title {
-      display: block;
-      margin: 0.5em;
-      border-style: solid;
-      border-width: 0 0 0 1em;
-      padding: 0 0.3em;
+      .legend {
+        width: 10em;
+        border: 1px solid black;
+      }
+
+      .legend .title {
+        display: block;
+        margin: 0.5em;
+        border-style: solid;
+        border-width: 0 0 0 1em;
+        padding: 0 0.3em;
+      }
     }
   }
 }
+
 
 
 
