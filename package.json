@@ -1,0 +1,26 @@
+{
+  "name": "textTrends",
+  "description": "Analyze word usage trends throughout a text",
+  "main": "src/textTrendsIndex.html",
+  "dependencies": {
+    "browserify": "^6.2.0",
+    "catw": "^1.0.1",
+    "jquery": "^2.1.4",
+    "less": "latest",
+    "lessify": "^1.0.1",
+    "lodash": "^3.10.1",
+    "spectrum": "^0.4.2"
+  },
+  "devDependencies": {
+    "watchify": "^2.1.1"
+  },
+  "scripts": {
+    "start": "npm run watch-css && npm run watch-js",
+    "watch-css": "catw -c 'lessc -' 'style/*.less' -o style/bundle.css"
+  },
+  "browserify": {
+    "transform": [
+      "lessify"
+    ]
+  }
+}

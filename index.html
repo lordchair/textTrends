@@ -1,1 +1,107 @@
-src/textTrendsIndex.html
+<html>
+
+<head>
+  <link rel="stylesheet" type="text/css" href="style/bundle.css" />
+  <script src="lib/jquery.js"></script>
+  <script src="lib/jquery-ui.js"></script>
+  <script src="lib/bootstrap.js"></script>
+  <script src="lib/bootstrap-tokenfield.js"></script>
+  <script src="lib/spectrum.js"></script>
+	<script src="lib/TinySort.js"></script>
+	<script src="lib/underscore.js"></script>
+  <script src="lib/Chart.js"></script>
+  <script src="lib/typeahead.js"></script>
+  <script src="lib/legend.js"></script>
+  <script src="lib/plotly.min.js"></script>
+	<script src="textTrends.js"></script>
+	<title>Text Trends Analyzer</title>
+</head>
+
+
+<body id="index" onload="">
+
+  <div class="loading_overlay">
+    <div class="spinner">
+      <div class="rect1"></div>
+      <div class="rect2"></div>
+      <div class="rect3"></div>
+      <div class="rect4"></div>
+      <div class="rect5"></div>
+    </div>
+  </div>
+
+  <div class="header">
+    <!--
+<div class="contact_info">
+      <div class="number"><a href="http://yale-thomas.com">yale-thomas.com</a></div>
+      <a href="mailto:lordchair+site_texttrends@gmail.com?Subject=TextTrends Response" target="_top">
+        lordchair@gmail.com
+      </a>
+    </div>
+-->
+    <div class="master_panel">
+      <div class="activate button"><a href="#science">Analyze</a></div><br>
+      <div class="reset button"><a href="">Reset All</a></div>
+    </div>
+
+    <div class="name_div">
+      Text Trends Analyzer
+    </div>
+  </div>
+
+  <!-- <a href="https://github.com/lordchair/textTrends"><img style="position: absolute; top: 0; right: 0; border: 0;" src="images/gitBanner.png" alt="Fork me on GitHub"></a> -->
+
+  <div class="section results" style="display:none;">
+    <div id="legend"></div>
+    <canvas id="chart" width="800" height="600">
+    </canvas>
+  </div>
+
+  <div class="not_results_wrapper">
+    <div class="sidebar_content">
+      <div class="section files">
+        <ul class="files_container"></ul>
+        <div class="file_button_holder">
+          Upload Files
+          <input class="file_input" type="file" id="file_input" multiple="multiple"/>
+        </div>
+        <div class="file_button_holder external_file asoif" id="asoif">
+          ASoIF
+        </div>
+        <div class="file_button_holder external_file lotr" id="lotr">
+          LotR
+        </div>
+        <div class="file_selector"></div>
+      </div>
+    </div>
+
+    <div class="main_content">
+      <div class="section categories input">
+        <div class="add_category unloaded"><div><i class="fa fa-plus"></i> Category</div></div>
+      </div>
+      <div class="section input_old">
+        <!-- <input type="number" class="number_input" id="chunk_number_input" defaultValue="10" max="1000" min="1" placeholder="Chunks/File"/> -->
+        <div class="subsection specifiers" style="display:none;">
+          <ul class="specifier_container">
+          </ul>
+          <i class="fa fa-plus"></i>
+        </div>
+      </div>
+      <ul class="section instructions">
+        <li class="instruct">1) Get some data up in here. Use the sidebar on the left and upload your own plain .txt files or select the text of a book series (currently Lord of the Rings or Game of Thrones)</li>
+        <li class="instruct">2) Wait for the initial analysis</li>
+        <li class="instruct">3) Add a new category with the big button</li>
+        <li class="instruct">4) Select a word or multiple to chart</li>
+        <li class="instruct">5) Maybe add some other categories to compare?</li>
+        <li class="instruct">6) "Analyze" up in the top left</li>
+        <li class="instruct">7) ???</li>
+        <li class="instruct">8) Profit</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <script> init(); </script>
+</body>
+
+</html>
