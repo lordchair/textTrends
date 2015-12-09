@@ -21,7 +21,7 @@
   "scripts": {
     "watch": "npm run watch-js & npm run watch-css",
     "watch-css": "catw -c 'lessc -' 'style/*.less' -o static/bundle.css",
-    "watch-js": "watchify js/main.js -o static/bundle.js -dv"
+    "watch-js": "watchify -d -v -t [ babelify --presets [ es2015 react ] ] js/main.js -o static/bundle.js"
   },
   "browserify": {
     "transform": [
