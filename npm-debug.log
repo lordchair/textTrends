@@ -8,7 +8,7 @@
 7 info watch-css textTrends@
 8 verbose unsafe-perm in lifecycle true
 9 info textTrends@ Failed to exec watch-css script
-10 verbose stack Error: textTrends@ watch-css: `catw -c 'lessc -' 'style/*.less' -o style/bundle.css`
+10 verbose stack Error: textTrends@ watch-css: `catw -c 'lessc -' 'style/*.less' -o static/bundle.css`
 10 verbose stack Exit status 1
 10 verbose stack     at EventEmitter.<anonymous> (/usr/local/lib/node_modules/npm/lib/utils/lifecycle.js:213:16)
 10 verbose stack     at EventEmitter.emit (events.js:110:17)
@@ -23,13 +23,13 @@
 15 error node v0.12.2
 16 error npm  v2.8.4
 17 error code ELIFECYCLE
-18 error textTrends@ watch-css: `catw -c 'lessc -' 'style/*.less' -o style/bundle.css`
+18 error textTrends@ watch-css: `catw -c 'lessc -' 'style/*.less' -o static/bundle.css`
 18 error Exit status 1
-19 error Failed at the textTrends@ watch-css script 'catw -c 'lessc -' 'style/*.less' -o style/bundle.css'.
+19 error Failed at the textTrends@ watch-css script 'catw -c 'lessc -' 'style/*.less' -o static/bundle.css'.
 19 error This is most likely a problem with the textTrends package,
 19 error not with npm itself.
 19 error Tell the author that this fails on your system:
-19 error     catw -c 'lessc -' 'style/*.less' -o style/bundle.css
+19 error     catw -c 'lessc -' 'style/*.less' -o static/bundle.css
 19 error You can get their info via:
 19 error     npm owner ls textTrends
 19 error There is likely additional logging output above.

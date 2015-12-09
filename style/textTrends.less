@@ -123,26 +123,24 @@ body {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      justify-content: space-around;
+      justify-content: center;
 
       .category, .add_category {
-        .rounded(10px);
+        .rounded(5px);
         .user-select(none);
         border: 1px dashed blue;
-        width: 100%;
-        max-width: 500px;
-        min-height: 200px;
-        height: auto;
+        width: 200px;
+        height: 300px;
         z-index: 1;
         position: relative;
         overflow: hidden;
 
         @anitime: .5s;
-        @category_animation: min-height @anitime, height @anitime;
+        @category_animation: width @anitime;
         .transition(@category_animation);
 
         &.unloaded {
-          min-height: 0;
+          width: 0;
           height: 0;
           border: none;
           .remove_category {

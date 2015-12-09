@@ -5,21 +5,38 @@
   "dependencies": {
     "jquery": "^2.1.4",
     "lodash": "^3.10.1",
-    "spectrum": "^0.4.2"
+    "react": "^0.14.3",
+    "react-dom": "^0.14.3"
   },
   "devDependencies": {
     "browserify": "^6.2.0",
-    "catw": "^1.0.1",
     "less": "^2.5.3",
+    "babel-preset-es2015": "^6.3.13",
+    "babel-preset-react": "^6.3.13",
+    "babelify": "^7.2.0",
+    "catw": "^1.0.1",
     "lessify": "^1.0.1",
     "watchify": "^2.1.1"
   },
   "scripts": {
-    "watch-css": "catw -c 'lessc -' 'style/*.less' -o style/bundle.css"
+    "watch": "npm run watch-js & npm run watch-css",
+    "watch-css": "catw -c 'lessc -' 'style/*.less' -o static/bundle.css",
+    "watch-js": "watchify js/main.js -o static/bundle.js -dv"
   },
   "browserify": {
     "transform": [
-      "lessify"
+      [
+        "babelify",
+        {
+          "presets": [
+            "es2015",
+            "react"
+          ]
+        }
+      ],
+      [
+        "lessify"
+      ]
     ]
   }
 }
