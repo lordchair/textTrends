@@ -1,20 +1,13 @@
+/* eslint-disable */
 var React = require('react');
 var ReactDOM = require('react-dom');
-
-
-var App = React.createClass({
-  render() {
-    return (
-      <div> HALLO WORLD </div>
-    );
-  }
-});
+var App = require('./App.jsx');
 
 
 
 $(document).ready(function() {
-  init();
   ReactDOM.render(<App />, $('#react')[0]);
+  init();
 });
 
 
@@ -24,62 +17,18 @@ $(document).ready(function() {
 function init() {
   var debouncedAnalyzeButton = _.debounce(function(){analyzeButtonPress();}, 1000);
   var debouncedResize = _.debounce(function(){resizeHelper();}, 100);
-  $(window).on('resize', debouncedResize);
-  $('#file_input_button').on('click', debouncedAnalyzeButton);
-  $('.external_file').on('click', chooseFilesButton);
-  $('.activate.button').on('click', debouncedAnalyzeButton);
-  $('.add_specifier').on('click', addSpecifier);
-  $('.add_category').on('click', addCategory);
-  $('#file_input').on('change', loadFiles);
-  $('.loading_overlay').on('click', loadingClick);
-  removeAllFiles();
-  $('.specifier_container').sortable();
-  window.reader = new FileReader();
-  resizeHelper();
+  // $(window).on('resize', debouncedResize);
+  // $('#file_input_button').on('click', debouncedAnalyzeButton);
+  // $('.activate.button').on('click', debouncedAnalyzeButton);
+  // $('.add_specifier').on('click', addSpecifier);
+  // $('.add_category').on('click', addCategory);
+  // $('.external_file').on('click', chooseFilesButton);
+  // $('#file_input').on('change', loadFiles);
+  // removeAllFiles();
+  // $('.specifier_container').sortable();
+  // resizeHelper();
 }
 
-function loadingClick(e) {
-  e.stopPropagation();
-}
-
-function chooseFilesButton(e) {
-  var toProcess;
-  switch (e.target.id) {
-    case 'asoif': toProcess = {
-        '1 - A Game of Thrones': 'http://s3.amazonaws.com/textanalyzer.yale-thomas.com/text/ASOIF/1+-+A+Game+of+Thrones++-+George+R.R.+Martin',
-        '2 - A Clash of Kings': 'http://s3.amazonaws.com/textanalyzer.yale-thomas.com/text/ASOIF/2+-+A+Clash+of+Kings++-+George+R.R.+Martin',
-        '3 - A Storm of Swords': 'http://s3.amazonaws.com/textanalyzer.yale-thomas.com/text/ASOIF/3+-+A+Storm+of+Swords++-+George+R.R.+Martin',
-        '4 - A Feast for Crows': 'http://s3.amazonaws.com/textanalyzer.yale-thomas.com/text/ASOIF/4+-+A+Feast+for+Crows+-+George+R.R.+Martin',
-        '5 - A Dance with Dragons': 'http://s3.amazonaws.com/textanalyzer.yale-thomas.com/text/ASOIF/5+-+A+Dance+With+Dragons+-+George+R.R.+Martin'
-      };
-      break;
-    case 'lotr': toProcess = {
-        '1 - Fellowship of the Ring': 'http://s3.amazonaws.com/textanalyzer.yale-thomas.com/text/lotr/1+-+LotR+Fellowship+of+the+Ring+-+Tolken',
-        '2 - Two Towers': 'http://s3.amazonaws.com/textanalyzer.yale-thomas.com/text/lotr/2+-+LotR+Two+Towers+-+Tolken',
-        '3 - Return of the King': 'http://s3.amazonaws.com/textanalyzer.yale-thomas.com/text/lotr/3+-+LotR+Return+of+the+King+-+Tolken',
-      };
-      break;
-    default: return;
-  }
-  $('.loading_overlay').addClass('active');
-  removeAllFiles();
-  window.numFiles = _.keys(toProcess).length;
-  var debouncedFileLoadingHelper = _.after(window.numFiles, function() {
-    fileLoadingHelper(false);
-    var toSort = $('.files_container').children();
-    $('.files_container').empty();
-    toSort.sort(function (a, b) {
-      return ($(a).text().toLowerCase() > $(b).text().toLowerCase());
-    });
-    _.each(toSort, function(me) { $('.files_container').append(me);});
-    $('.loading_overlay').removeClass('active');
-  });
-  _.each(toProcess, function(url, name) {
-    $.get(url, (function(myName) {
-      return function(data) { processText(data, myName); debouncedFileLoadingHelper(); };
-    })(name));
-  });
-}
 
 function analyzeButtonPress() {
   var toAnalyze = [];
@@ -88,58 +37,6 @@ function analyzeButtonPress() {
     toAnalyze = toAnalyze.concat(window.namedChunks[name]);
   });
   chartData(getDatasetFromDOM(analyzeChunks(toAnalyze)), fileNames);
-}
-
-function removeAllFiles() {
-  window.autocompleteTags = [];
-  window.autocompleteNeedsUpdate = true;
-  window.summedWordList = [];
-  window.fileNameList = [];
-  window.namedChunks = {};
-}
-
-function loadFiles(e) {
-  if (!e.target || !e.target.files.length)
-    return;
-  removeAllFiles();
-  var filesToLoad = e.target.files;
-  window.filesLeft = [];
-  window.autocompleteNeedsUpdate = true;
-  window.numFiles = 0;
-  _.each(filesToLoad, function(file) {
-    window.numFiles++;
-    window.filesLeft.push(file);
-  });
-  fileLoadingHelper(window.filesLeft.shift());
-}
-
-function fileLoaded(e, file) {
-  // Grab the file contents
-  processText(e.srcElement.result, file.name);
-
-  // recursively (through the onLoadEnd binding) process next file
-  var continues = (window.filesLeft.length) ? window.filesLeft.shift() : false;
-  fileLoadingHelper(continues);
-}
-
-function fileLoadingHelper(file) {
-  if (!file) {
-    analyzeChunks(window.summedWordList);
-    window.autocompleteNeedsUpdate = true;
-    this.$('.add_category').removeClass('unloaded');
-    updateFileDisplay();
-    updateTypeahead();
-    return;
-  }
-  if (window.namedChunks[file.name]) {
-    window.summedWordList = window.summedWordList.concat(window.namedChunks[file.name]);
-    fileLoadingHelper(window.filesLeft.shift());
-  } else {
-    window.reader.onloadend = (  function(myFile) {
-       return function(evt) { fileLoaded(evt, myFile); };
-    })(file);
-    window.reader.readAsText(file);
-  }
 }
 
 function processText(textToProcess, name) {
@@ -345,26 +242,27 @@ function updateFileDisplay() {
 }
 
 function addCategory() {
-  var newCategory = $('<div class="category unloaded"></div>');
-  newCategory.append($('<div class="top_row"><input class="typeahead" type="text" placeholder="+ Word"><div class="remove_category fa fa-remove"></div></div>'));
-  newCategory.append($('<div class="word_list"></div>'));
-  newCategory.find('.remove_category').on('click', function() { removeCategory(newCategory); });
-  $('.add_category').before(newCategory);
-  updateTypeahead();
-  $typeahead = newCategory.find('.typeahead');
-  $typeahead.typeahead({
-    hint: true,
-    highlight: true,
-    minLength: 1
-  },
-  {
-    name: 'data',
-    source: window.engine
-  });
-  $typeahead.on('typeahead:select', onTypeaheadSelectEvent);
-  setTimeout(function() {
-    newCategory.removeClass('unloaded');
-  }, 10);
+
+  // var newCategory = $('<div class="category unloaded"></div>');
+  // newCategory.append($('<div class="top_row"><input class="typeahead" type="text" placeholder="+ Word"><div class="remove_category fa fa-remove"></div></div>'));
+  // newCategory.append($('<div class="word_list"></div>'));
+  // newCategory.find('.remove_category').on('click', function() { removeCategory(newCategory); });
+  // $('.add_category').before(newCategory);
+  // updateTypeahead();
+  // $typeahead = newCategory.find('.typeahead');
+  // $typeahead.typeahead({
+  //   hint: true,
+  //   highlight: true,
+  //   minLength: 1
+  // },
+  // {
+  //   name: 'data',
+  //   source: window.engine
+  // });
+  // $typeahead.on('typeahead:select', onTypeaheadSelectEvent);
+  // setTimeout(function() {
+  //   newCategory.removeClass('unloaded');
+  // }, 10);
 }
 
 function removeCategory(categoryRef) {
