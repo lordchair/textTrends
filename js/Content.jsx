@@ -8,7 +8,8 @@ const Content = React.createClass({
     autocompleteTags: React.PropTypes.array,
     categories: React.PropTypes.array,
     onAddToCategory: React.PropTypes.func,
-    onRemoveFromCategory: React.PropTypes.func
+    onRemoveFromCategory: React.PropTypes.func,
+    children: React.PropTypes.element
   },
 
   getDefaultProps() {
@@ -29,7 +30,8 @@ const Content = React.createClass({
     const autocompleteString = this.props.autocompleteTags.join('" "');
     return (
       <div className="main_content">
-        <ReactCSSTransitionGroup className="section categories input" transitionName="categoryAnimation" transitionEnterTimeout={500} transitionLeaveTimeout={300}>
+        {this.props.children}
+        <div className="section categories input">
           {this.props.categories.map((category, index) => {
             return (
               <Category
@@ -41,7 +43,7 @@ const Content = React.createClass({
             );
           })}
           <div className="add_category" onClick={() => { this.props.onAddToCategory(false, false); }}><div className='plus'>+</div><br/>Word group</div>
-        </ReactCSSTransitionGroup>
+        </div>
 
         {/* <input type="number" className="number_input" id="chunk_number_input" defaultValue="10" max="1000" min="1" placeholder="Chunks/File"/> */}
         <Instructions/>

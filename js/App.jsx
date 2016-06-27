@@ -3,8 +3,9 @@ const Header = require('./Header.jsx');
 const Sidebar = require('./Sidebar.jsx');
 const Content = require('./Content.jsx');
 const Spinner = require('./Spinner.jsx');
+const Results = require('./Results.jsx');
 const { asoif, lotr } = require('./constants.js');
-const { textToChunks, chunksToFreqs, freqsToAutocompleteInfo, freqsToTopWordLists } = require('./textProcessing.js');
+const { textToChunks, chunksToFreqs, combineIntegerDicts } = require('./textProcessing.js');
 
 const App = React.createClass({
   getInitialState() {
@@ -12,7 +13,9 @@ const App = React.createClass({
       fileNameList: [],
       filesLeft: 0,
       categories: [],
-      autocompleteTags: []
+      frequencyDictionary: {},
+      sortedWordList: [],
+      desiredChunks: 100
     }
   },
 
@@ -32,42 +35,8 @@ const App = React.createClass({
 
   removeAllFiles() {
     this.setState(this.getInitialState());
-    this.autocompleteTags = [];
-    this.summedWordList = [];
     this.toProcess = [];
     this.numChunks = 5;
-  },
-
-  analyzeAllData() {
-    this.updateAutocomplete();
-    // $('.add_category').removeClass('unloaded');
-    // updateFileDisplay();
-    // updateTypeahead();
-
-    // var toSort = $('.files_container').children();
-    // $('.files_container').empty();
-    // toSort.sort(function (a, b) {
-    //   return ($(a).text().toLowerCase() > $(b).text().toLowerCase());
-    // });
-    // _.each(toSort, function(me) { $('.files_container').append(me);});
-    // $('.loading_overlay').removeClass('active');
-  },
-
-  updateAutocomplete() {
-    const fileNameList = this.state.fileNameList;
-    let autocompleteWords = [];
-    for (let i = 0; i < fileNameList.length; i++) {
-      const name = fileNameList[i];
-      const data = _.find(this.analyzed, (obj) => obj.fileName === name);
-      if (!data || !data.freqSummary) {
-        console.warn('updateAutocomplete recieved null data for file: ' + name);
-        continue;
-      }
-      autocompleteWords = _.union(_.keys(data.freqSummary), autocompleteWords);
-    }
-    this.setState({
-      autocompleteTags: autocompleteWords
-    });
   },
 
   onPresetPicked(preset) {
@@ -81,7 +50,7 @@ const App = React.createClass({
     const fileNames = _.keys(toProcess);
     this.setState({ fileNameList: fileNames , filesLeft: fileNames.length });
 
-    this.numChunks = Math.ceil(20/(this.state.filesLeft+1));
+    this.numChunks = Math.ceil(this.state.desiredChunks/(this.state.filesLeft+1));
     this.toProcess = _.map(toProcess, (val, key) => { return { name: key, url: val }; });
 
     this.processNextFile();
@@ -99,8 +68,12 @@ const App = React.createClass({
       if (existingData.numChunks !== this.numChunks) {
         // rechuk
       }
-      this.summedWordList = this.summedWordList.concat(existingData.chunks);
-      this.setState({ filesLeft: this.state.filesLeft - 1});
+      const frequencyDictionaryUpdate = combineIntegerDicts(this.state.frequencyDictionary, existingData.freqSummary);
+      this.setState({
+        filesLeft: this.state.filesLeft - 1,
+        frequencyDictionary: frequencyDictionaryUpdate,
+        sortedWordList: Object.keys(frequencyDictionaryUpdate).sort(function(a,b){return frequencyDictionaryUpdate[b]-frequencyDictionaryUpdate[a]})
+      });
     } else if (file.name && file.url) {
       $.get(file.url, this.buildProcessingFunc(file.name));
     } else {
@@ -127,9 +100,15 @@ const App = React.createClass({
       myData.freqs = freqInfo.freqs;
 
       this.analyzed.push(myData);
-      this.setState({ filesLeft: this.state.filesLeft - 1 });
+
+      const frequencyDictionaryUpdate = combineIntegerDicts(this.state.frequencyDictionary, myData.freqSummary);
+      this.setState({
+        filesLeft: this.state.filesLeft - 1,
+        frequencyDictionary: frequencyDictionaryUpdate,
+        sortedWordList: Object.keys(frequencyDictionaryUpdate).sort(function(a,b){return frequencyDictionaryUpdate[b]-frequencyDictionaryUpdate[a]})
+      });
       if (this.state.filesLeft <= 0) {
-        this.analyzeAllData();
+        // DONE LOADING
       }
     }.bind(this);
   },
@@ -140,7 +119,7 @@ const App = React.createClass({
 
     this.toProcess = e.target.files;
     this.setState({ fileNameList: _.map(this.toProcess, (file) => file.name), filesLeft: this.toProcess.length });
-    this.numChunks = Math.ceil(20/(this.toProcess.length+1));
+    this.numChunks = Math.ceil(this.state.desiredChunks/(this.toProcess.length+1));
 
     this.processNextFile();
   },
@@ -188,14 +167,22 @@ const App = React.createClass({
 
 
   render() {
+    let results = null;
+    if (!this.state.filesLeft && this.state.categories.length && this.state.categories[0].words.length) {
+      results = (
+        <Results dataSet={this.analyzed} categories={this.state.categories} filesToChart={this.state.fileNameList} />
+      );
+    }
 
     return (
       <div className='App'>
         <Spinner total={this.state.fileNameList.length} remaining={this.state.filesLeft} />
-        <Header onAnalyzeClicked={} onResetClicked={this.removeAllFiles}/>
+        <Header onResetClicked={this.removeAllFiles}/>
         <div className="body">
           <Sidebar onFilePreset={this.onPresetPicked} onFileUploaded={this.onUploadPicked} fileNames={this.state.fileNameList} />
-          <Content categories={this.state.categories} autocompleteTags={this.state.autocompleteTags} onAddToCategory={this.onAddToCategory} onRemoveFromCategory={this.onRemoveFromCategory} />
+          <Content categories={this.state.categories} autocompleteTags={this.state.sortedWordList} onAddToCategory={this.onAddToCategory} onRemoveFromCategory={this.onRemoveFromCategory}>
+            {results}
+          </Content>
         </div>
       </div>
     );

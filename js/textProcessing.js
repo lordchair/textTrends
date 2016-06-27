@@ -6,7 +6,7 @@ function textToChunks(textToProcess, numChunks_) {
   // Clean up the text
   text = text.toLowerCase();
   text = text.replace(/\s/g, ' ');
-  text = text.replace(/[^a-z ]/g, ' ');
+  text = text.replace(/[^a-z ]/g, '');
 
   var textArr = text.split(' ');
   textArr = _.without(textArr, '');
@@ -19,10 +19,6 @@ function textToChunks(textToProcess, numChunks_) {
   }
 
   return myChunks;
-}
-
-function textToArrayOfWords(textToProcess) {
-
 }
 
 function chunksToFreqs(chunks) {
@@ -76,4 +72,17 @@ function freqsToAutocompleteInfo(freqs) {
   return autocompleteTags;
 }
 
-module.exports = { textToChunks, chunksToFreqs, freqsToAutocompleteInfo, freqsToTopWordLists };
+function combineIntegerDicts(...dictionaries) {
+  if (!dictionaries || !dictionaries.length) { return; }
+  if (dictionaries[0].constructor === Array) { return combineIntegerDicts(...dictionaries[0]); }
+  const output = dictionaries[0];
+  for (let i = 1; i < dictionaries.length; i++) {
+    for (const item in dictionaries[i]) {
+      const startValue = output[item] || 0;
+      output[item] = dictionaries[i][item] + startValue;
+    }
+  }
+  return output;
+}
+
+module.exports = { textToChunks, chunksToFreqs, freqsToAutocompleteInfo, freqsToTopWordLists, combineIntegerDicts };
