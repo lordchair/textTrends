@@ -295,6 +295,7 @@ function updateTypeahead() {
         name: 'data',
         source: window.engine,
       });
+      $(typeahead).on('typeahead:select', onTypeaheadSelectEvent);
     });
 
     _.each($('.specifier'), function(textField) {
@@ -305,6 +306,10 @@ function updateTypeahead() {
     $('.subsection.specifiers').slideDown();
   }
   window.autocompleteNeedsUpdate = false;
+}
+
+function onTypeaheadSelectEvent(e, newWord) {
+  debugger;
 }
 
 function updateFileDisplay() {
@@ -324,9 +329,10 @@ function addCategory() {
   newCategory.append($('<div class="top_row"><input class="typeahead" type="text" placeholder="+ Word"><div class="remove_category fa fa-remove"></div></div>'));
   newCategory.append($('<div class="word_list"></div>'));
   newCategory.find('.remove_category').on('click', function() { removeCategory(newCategory); });
-  $('.categories').prepend(newCategory);
+  $('.add_category').before(newCategory);
   updateTypeahead();
-  newCategory.find('.typeahead').typeahead({
+  $typeahead = newCategory.find('.typeahead');
+  $typeahead.typeahead({
     hint: true,
     highlight: true,
     minLength: 1
@@ -335,6 +341,7 @@ function addCategory() {
     name: 'data',
     source: window.engine
   });
+  $typeahead.on('typeahead:select', onTypeaheadSelectEvent);
   setTimeout(function() {
     newCategory.removeClass('unloaded');
   }, 10);
