@@ -11,14 +11,16 @@ function textToChunks(textToProcess, numChunks_) {
   var textArr = text.split(' ');
   textArr = _.without(textArr, '');
 
-  var chunkSize = textArr.length / numChunks;
-  var myChunks = [];
+  return chunkArray(textArr, numChunks);
+}
 
+function chunkArray(inputArr, numChunks) {
+  const output = [];
+  const chunkSize = inputArr.length / numChunks;
   for (var i = 0; i < numChunks; i++) {
-    myChunks[i] = textArr.slice(i*chunkSize, (i+1)*chunkSize);
+    output[i] = inputArr.slice(i*chunkSize, (i+1)*chunkSize);
   }
-
-  return myChunks;
+  return output;
 }
 
 function chunksToFreqs(chunks) {
@@ -85,4 +87,4 @@ function combineIntegerDicts(...dictionaries) {
   return output;
 }
 
-module.exports = { textToChunks, chunksToFreqs, freqsToAutocompleteInfo, freqsToTopWordLists, combineIntegerDicts };
+module.exports = { textToChunks, chunksToFreqs, freqsToAutocompleteInfo, freqsToTopWordLists, combineIntegerDicts, chunkArray };

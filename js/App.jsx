@@ -4,18 +4,20 @@ const Sidebar = require('./Sidebar.jsx');
 const Content = require('./Content.jsx');
 const Spinner = require('./Spinner.jsx');
 const Results = require('./Results.jsx');
+const Instructions = require('./Instructions.jsx');
 const { asoif, lotr } = require('./constants.js');
-const { textToChunks, chunksToFreqs, combineIntegerDicts } = require('./textProcessing.js');
+const { textToChunks, chunksToFreqs, combineIntegerDicts, chunkArray } = require('./textProcessing.js');
 
 const App = React.createClass({
   getInitialState() {
     return {
       fileNameList: [],
       filesLeft: 0,
-      categories: [],
+      categories: (this.state && this.state.categories) || [],
       frequencyDictionary: {},
       sortedWordList: [],
-      desiredChunks: 100
+      graphOptions: (this.state && this.state.graphOptions) || { useOldGraph: false, interpolation: 'monotone', yScaleType: 'linear' },
+      desiredChunks: (this.state && this.state.desiredChunks) || 20
     }
   },
 
@@ -36,7 +38,6 @@ const App = React.createClass({
   removeAllFiles() {
     this.setState(this.getInitialState());
     this.toProcess = [];
-    this.numChunks = 5;
   },
 
   onPresetPicked(preset) {
@@ -50,7 +51,6 @@ const App = React.createClass({
     const fileNames = _.keys(toProcess);
     this.setState({ fileNameList: fileNames , filesLeft: fileNames.length });
 
-    this.numChunks = Math.ceil(this.state.desiredChunks/(this.state.filesLeft+1));
     this.toProcess = _.map(toProcess, (val, key) => { return { name: key, url: val }; });
 
     this.processNextFile();
@@ -65,7 +65,7 @@ const App = React.createClass({
 
     const existingData = _.find(this.analyzed, (datum) => datum.fileName === file.name);
     if (existingData) {
-      if (existingData.numChunks !== this.numChunks) {
+      if (existingData.numChunks !== this.state.desiredChunks) {
         // rechuk
       }
       const frequencyDictionaryUpdate = combineIntegerDicts(this.state.frequencyDictionary, existingData.freqSummary);
@@ -91,10 +91,10 @@ const App = React.createClass({
       }
       const myData = {
         fileName: myName,
-        numChunks: this.numChunks,
-        chunks: textToChunks(data, this.numChunks),
-        chunkSummary: textToChunks(data, 1),
-      }
+        numChunks: this.state.desiredChunks
+      };
+      myData.chunkSummary = textToChunks(data)[0];
+      myData.chunks = chunkArray(myData.chunkSummary, myData.numChunks);
       const freqInfo = chunksToFreqs(myData.chunks);
       myData.freqSummary = freqInfo.summary;
       myData.freqs = freqInfo.freqs;
@@ -109,6 +109,9 @@ const App = React.createClass({
       });
       if (this.state.filesLeft <= 0) {
         // DONE LOADING
+        while(this.state.categories.length < 2) {
+          this.onAddToCategory();
+        }
       }
     }.bind(this);
   },
@@ -116,11 +119,8 @@ const App = React.createClass({
   onUploadPicked(e) {
     if (!e.target || !e.target.files.length) { return; }
     this.removeAllFiles();
-
     this.toProcess = e.target.files;
     this.setState({ fileNameList: _.map(this.toProcess, (file) => file.name), filesLeft: this.toProcess.length });
-    this.numChunks = Math.ceil(this.state.desiredChunks/(this.toProcess.length+1));
-
     this.processNextFile();
   },
 
@@ -164,13 +164,31 @@ const App = React.createClass({
     }
   },
 
+  updateChunkNumber(number) {
+    if (number !== this.state.desiredChunks) {
+      for (let i = 0; i < this.state.fileNameList.length; i++) {
+        const updated = _.find(this.analyzed, (datum) => datum.fileName === this.state.fileNameList[i]);
+        updated.numChunks = number;
+        updated.chunks = chunkArray(updated.chunkSummary, number);
+        const freqInfo = chunksToFreqs(updated.chunks);
+        updated.freqs = freqInfo.freqs;
+      }
+      this.setState({ desiredChunks: number });
+    }
+  },
+
+
 
 
   render() {
     let results = null;
     if (!this.state.filesLeft && this.state.categories.length && this.state.categories[0].words.length) {
       results = (
-        <Results dataSet={this.analyzed} categories={this.state.categories} filesToChart={this.state.fileNameList} />
+        <Results
+          dataSet={this.analyzed}
+          categories={this.state.categories}
+          graphOptions={this.state.graphOptions}
+          filesToChart={this.state.fileNameList} />
       );
     }
 
@@ -178,12 +196,17 @@ const App = React.createClass({
       <div className='App'>
         <Spinner total={this.state.fileNameList.length} remaining={this.state.filesLeft} />
         <Header onResetClicked={this.removeAllFiles}/>
-        <div className="body">
-          <Sidebar onFilePreset={this.onPresetPicked} onFileUploaded={this.onUploadPicked} fileNames={this.state.fileNameList} />
-          <Content categories={this.state.categories} autocompleteTags={this.state.sortedWordList} onAddToCategory={this.onAddToCategory} onRemoveFromCategory={this.onRemoveFromCategory}>
-            {results}
-          </Content>
-        </div>
+        <Content categories={this.state.categories} results={results} autocompleteTags={this.state.sortedWordList} onAddToCategory={this.onAddToCategory} onRemoveFromCategory={this.onRemoveFromCategory}>
+          <Sidebar
+            onFilePreset={this.onPresetPicked}
+            onFileUploaded={this.onUploadPicked}
+            numChunks={Number.parseInt(this.state.desiredChunks)}
+            updateChunkNumber={this.updateChunkNumber}
+            updateGraphOption={(optionName, newValue) => { if (newValue !== this.state.graphOptions.optionName) { const updated = this.state.graphOptions; updated[optionName] = newValue; this.setState({ graphOptions: updated })}}}
+            selectedGraphOptions={this.state.graphOptions}
+            fileNames={this.state.fileNameList} />
+          <Instructions/>
+        </Content>
       </div>
     );
   }

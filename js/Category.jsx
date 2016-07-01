@@ -4,6 +4,7 @@ const tinycolor = require('tinycolor2');
 
 const Category = React.createClass({
   propTypes: {
+    zIndex: React.PropTypes.number,
     category: React.PropTypes.object,
     optionString: React.PropTypes.string,
     onAddToCategory: React.PropTypes.func,
@@ -21,7 +22,8 @@ const Category = React.createClass({
 
   render() {
     const categoryStyle = {
-      backgroundColor: this.props.category.color
+      backgroundColor: this.props.category.color,
+      zIndex: this.props.zIndex || 1
     }
     return (
       <div style={categoryStyle} className="category">

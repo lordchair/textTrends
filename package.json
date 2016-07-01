@@ -3,6 +3,7 @@
   "description": "Analyze word usage trends throughout a text",
   "main": "src/textTrendsIndex.html",
   "dependencies": {
+    "d3": "^3.5.17",
     "jquery": "^3.0.0",
     "lodash": "^4",
     "react": "^15",

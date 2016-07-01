@@ -10,7 +10,8 @@ const Typeahead = React.createClass({
   getInitialState() {
     return {
       suggestions: [],
-      cursorIndex: 0
+      cursorIndex: 0,
+      focus: false
     }
   },
 
@@ -31,7 +32,7 @@ const Typeahead = React.createClass({
     const reStr = '"([^"]*' + toCheck + '[^"]*)"';
     const re = new RegExp(reStr, 'gi');
 
-    const suggestions = [];
+    let suggestions = [];
     let i = 0;
     let result;
     while (result = re.exec(this.props.optionString)) {
@@ -41,6 +42,11 @@ const Typeahead = React.createClass({
       if (i >=100) {
         break;
       }
+    }
+
+    const toCheckIndex = suggestions.indexOf(toCheck);
+    if (toCheckIndex > 0) {
+      suggestions = [suggestions[toCheckIndex], ...suggestions.slice(0, toCheckIndex), ...suggestions.slice(toCheckIndex + 1)];
     }
 
     return suggestions;
@@ -55,6 +61,9 @@ const Typeahead = React.createClass({
         break;
       case 'tab':
         this.selectOption(e.target.value);
+        break;
+      case 'escape':
+        this._textInput.blur();
         break;
       default: return;
     }
@@ -75,16 +84,29 @@ const Typeahead = React.createClass({
   },
 
   render() {
-    return (
-      <div className='Typeahead'>
-        <input type='string' className='typeahead' onKeyUp={this.onKeyUp} onChange={this.checkString}  ref={component => this._textInput = component} placeholder='enter regex/string'/>
+    let suggestions = null;
+    if (this.state.focused) {
+      suggestions = (
         <div className='typeahead_suggestions'>
           {this.state.suggestions.map((suggestion) => {
             return (
-              <div className='typeahead_suggestion' onClick={() => { this.selectOption(suggestion) }}>{suggestion}</div>
+              <div className='typeahead_suggestion' onMouseDown={() => { this.selectOption(suggestion) }}>{suggestion}</div>
             );
           })}
         </div>
+      );
+    }
+    return (
+      <div className='Typeahead'>
+        <input type='string'
+          className='typeahead'
+          onKeyUp={this.onKeyUp}
+          onFocus={() => { this.setState({ focused: true })}}
+          onBlur={() => { this.setState({ focused: false })}}
+          onChange={this.checkString}
+          ref={component => this._textInput = component}
+          placeholder='enter regex/string'/>
+        {suggestions}
       </div>
     );
   }
