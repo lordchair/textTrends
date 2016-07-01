@@ -3,24 +3,52 @@
   "description": "Analyze word usage trends throughout a text",
   "main": "src/textTrendsIndex.html",
   "dependencies": {
-    "browserify": "^6.2.0",
-    "catw": "^1.0.1",
-    "jquery": "^2.1.4",
-    "less": "latest",
-    "lessify": "^1.0.1",
-    "lodash": "^3.10.1",
-    "spectrum": "^0.4.2"
+    "d3": "^3.5.17",
+    "jquery": "^3.0.0",
+    "lodash": "^4",
+    "react": "^15",
+    "react-addons-css-transition-group": "^15.1.0",
+    "react-d3": "^0.4.0",
+    "react-d3-tooltip": "^1.4.14",
+    "react-d3-zoom": "^1.1.2",
+    "react-dom": "^15",
+    "react-typeahead": "^2.0.0-alpha.5",
+    "tinycolor2": "^1.3.0"
   },
   "devDependencies": {
-    "watchify": "^2.1.1"
+    "babel": "^6.5.2",
+    "babel-eslint": "^6.1.0",
+    "babel-preset-es2015": "^6.9.0",
+    "babel-preset-react": "^6.5.0",
+    "babelify": "^7.2.0",
+    "browserify": "^13.0.0",
+    "catw": "^1.0.1",
+    "eslint": "^2.13.1",
+    "eslint-plugin-react": "^5.2.2",
+    "less": "^2.5.3",
+    "less-watch-compiler": "^1.2.3",
+    "lessify": "^1.0.1",
+    "watchify": "^3"
   },
   "scripts": {
-    "start": "npm run watch-css && npm run watch-js",
-    "watch-css": "catw -c 'lessc -' 'style/*.less' -o style/bundle.css"
+    "watch": "npm run watch-js & npm run watch-css",
+    "watch-css": "less-watch-compiler style static textTrends.less",
+    "watch-js": "watchify -d -v -t [ babelify --presets [ es2015 react ] ] js/main.js -o static/bundle.js"
   },
   "browserify": {
     "transform": [
-      "lessify"
+      [
+        "babelify",
+        {
+          "presets": [
+            "es2015",
+            "react"
+          ]
+        }
+      ],
+      [
+        "lessify"
+      ]
     ]
   }
 }
