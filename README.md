@@ -11,4 +11,4 @@ Instructions
 
 3. Analyze away
 
-try it out [here](http://lordchair.github.io/textTrends/)
+Try it out [here](http://lordchair.github.io/textTrends/)
